@@ -65,12 +65,18 @@ instance Show MaybeVoidType where
   show (NotVoid typ) = show typ
   show Void = "void"
 
-data Function = Function Name [(Type, String)] MaybeVoidType
-  | TemplateFunction Name Type [Type] [(Type, String)] MaybeVoidType
+data Variable = Variable Type String
   deriving Eq
 
-showParameters :: [(Type, String)] -> String
-showParameters parameters = concat $ intersperse ", " $ map (\pair -> show (fst pair) ++ " " ++ snd pair) parameters
+instance Show Variable where
+  show (Variable typ name) = show typ ++ " " ++ name
+
+data Function = Function Name [Variable] MaybeVoidType
+  | TemplateFunction Name Type [Type] [Variable] MaybeVoidType
+  deriving Eq
+
+showParameters :: [Variable] -> String
+showParameters parameters = concat $ intersperse ", " $ map show parameters
 
 instance Show Function where
   show (Function name parameters return) = show return ++ " " ++ show name ++ "(" ++ showParameters parameters ++ ")"
