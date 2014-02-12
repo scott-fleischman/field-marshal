@@ -1,4 +1,5 @@
-module Native (Name, Pointer, Const, Reference) where
+module Native where
+import Data.List
 
 data Name = Name [String] String
   deriving Eq
@@ -34,8 +35,22 @@ instance (Show Reference) where
   show (ReferenceToPointer pointer) = show pointer ++ " &"
   show (ReferenceToConst const) = show const ++ " &"
 
+data Template = Template Name Type [Type]
+  deriving Eq
+
+instance (Show Template) where
+  show (Template name typ types) = show name ++ "<" ++ (concat $ intersperse ", " (map (show) (typ:types))) ++ ">"
+
 data Type = NameType Name
   | PointerType Pointer
   | ConstType Const
   | ReferenceType Reference
-  deriving (Eq, Show)
+  | TemplateType Template
+  deriving Eq
+
+instance (Show Type) where
+  show (NameType name) = show name
+  show (PointerType pointer) = show pointer
+  show (ConstType const) = show const
+  show (ReferenceType reference) = show reference
+  show (TemplateType template) = show template
