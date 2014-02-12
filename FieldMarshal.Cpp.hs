@@ -38,9 +38,11 @@ instance Show Reference where
 data Template = Template Name Type [Type]
   deriving Eq
 
+showTypes :: [Type] -> String
+showTypes types = concat $ intersperse ", " $ map show $ types
+
 instance Show Template where
-  show (Template name typ types) = show name ++ "<" ++ typeList ++ ">" where
-    typeList = concat $ intersperse ", " $ map show $ typ:types
+  show (Template name typ types) = show name ++ "<" ++ showTypes (typ:types) ++ ">"
 
 data Type = NameType Name
   | PointerType Pointer
@@ -55,3 +57,21 @@ instance Show Type where
   show (ConstType const) = show const
   show (ReferenceType reference) = show reference
   show (TemplateType template) = show template
+
+data MaybeVoidType = NotVoid Type | Void
+  deriving Eq
+
+instance Show MaybeVoidType where
+  show (NotVoid typ) = show typ
+  show Void = "void"
+
+data Function = Function Name [(Type, String)] MaybeVoidType
+  | TemplateFunction Name Type [Type] [(Type, String)] MaybeVoidType
+  deriving Eq
+
+showParameters :: [(Type, String)] -> String
+showParameters parameters = concat $ intersperse ", " $ map (\pair -> show (fst pair) ++ " " ++ snd pair) parameters
+
+instance Show Function where
+  show (Function name parameters return) = show return ++ " " ++ show name ++ "(" ++ showParameters parameters ++ ")"
+  show (TemplateFunction name firstType types parameters return) = show return ++ " " ++ show name ++ "<" ++ showTypes (firstType:types) ++ ">(" ++ showParameters parameters ++ ")"
