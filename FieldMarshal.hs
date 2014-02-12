@@ -1,30 +1,41 @@
-data NativeType =
-    PrimitiveNativeType
-  | PointerNativeType
-  | ReferenceNativeType
-  | ConstNativeType
-  | TemplateNativeType
-  deriving (Eq, Show)
+module Native (Name, Pointer, Const, Reference) where
 
-type PrimitiveNativeType = String
+data Name = Name [String] String
+  deriving Eq
 
-data PointerNativeType =
-    Pointer PrimitiveNativeType
-  | NestedPointer PointerNativeType
-  | PointerToConst ConstNativeType
-  deriving (Eq, Show)
+instance (Show Name) where
+  show (Name namespaces name) = (concat $ map (++ "::") namespaces) ++ name
 
-data ReferenceNativeType =
-    Reference PrimitiveNativeType
-  | ReferenceToPointer PointerNativeType
-  | ReferenceToConst ConstNativeType
-  deriving (Eq, Show)
+data Pointer = Pointer Name
+  | NestedPointer Pointer
+  | PointerToConst Const
+  deriving Eq
 
-data ConstNativeType =
-    Const PrimitiveNativeType
-  | ConstPointer PointerNativeType
-  deriving (Eq, Show)
+instance (Show Pointer) where
+  show (Pointer name) = show name ++ " *"
+  show (NestedPointer pointer) = show pointer ++ " *"
+  show (PointerToConst const) = show const ++ " *"
 
-data TemplateNativeType =
-    Template String [NativeType]
+data Const = Const Name
+  | ConstPointer Pointer
+  deriving Eq
+
+instance (Show Const) where
+  show (Const name) = "const " ++ show name
+  show (ConstPointer pointer) = show pointer ++ " const"
+
+data Reference = Reference Name
+  | ReferenceToPointer Pointer
+  | ReferenceToConst Const
+  deriving Eq
+
+instance (Show Reference) where
+  show (Reference name) = show name ++ " &"
+  show (ReferenceToPointer pointer) = show pointer ++ " &"
+  show (ReferenceToConst const) = show const ++ " &"
+
+data Type = NameType Name
+  | PointerType Pointer
+  | ConstType Const
+  | ReferenceType Reference
   deriving (Eq, Show)
