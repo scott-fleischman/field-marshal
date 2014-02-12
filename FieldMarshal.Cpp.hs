@@ -81,3 +81,9 @@ showParameters parameters = concat $ intersperse ", " $ map show parameters
 instance Show Function where
   show (Function name parameters return) = show return ++ " " ++ show name ++ "(" ++ showParameters parameters ++ ")"
   show (TemplateFunction name firstType types parameters return) = show return ++ " " ++ show name ++ "<" ++ showTypes (firstType:types) ++ ">(" ++ showParameters parameters ++ ")"
+
+newtype FunctionPointer = FunctionPointer Function
+  deriving Eq
+
+instance Show FunctionPointer where
+  show (FunctionPointer (Function name parameters return)) = show return ++ " (* " ++ show name ++ ")(" ++ showParameters parameters ++ ")"
